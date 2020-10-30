@@ -36,7 +36,7 @@ def clean_tweet(tweet):
     # Remove urls
     tweet = re.sub(r'http\S+', ' ', tweet)
     
-    # Remove all ''&#0000's
+    # Remove all emojis encoded as '&#0000's
     tweet = re.sub(r'(&#[0-9]+)', ' ', tweet)
     
     # Remove all '&xt's
@@ -122,6 +122,24 @@ def get_token_list(df, col, freq=False):
     
     return tokens
 
+
+
+
+
+def lemma_text(token_list):
+    
+    """Takes in a list of tokens and returns them joined as a lemmatized string using nltk.stem's
+       WordNetLemmatizer.
+    """
+    
+    from nltk.stem import WordNetLemmatizer 
+
+    # Init the Wordnet Lemmatizer
+    lemmatizer = WordNetLemmatizer()
+    
+    lemmatized_output = ' '.join([lemmatizer.lemmatize(word) for word in token_list])
+    
+    return lemmatized_output
 
 
 
@@ -364,3 +382,25 @@ def plot_coefficients(model, clf_step_name, vec_step_name,
     plt.show()
     
     return fig
+
+
+
+
+
+
+def print_full_tweet(df, col='text', title=''):
+    
+    """Takes in a dataframe and column name (default name is 'text') to print output
+       displaying the total number of tweets and the full (non-truncated) text. Can 
+       provide a title describing what sort of tweets are being output.
+    """
+    
+    import pandas as pd
+    
+    print('***'*20, '\n')
+    print(title, '\n')
+    print('Number of tweets:', len(df), '\n')
+    print('***'*20, '\n')
+    
+    for i in range(len(df)):
+        print(i , df.iloc[i]['text'], '\n', '---'*20, '\n')
