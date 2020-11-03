@@ -10,7 +10,7 @@
 
 - **At certain points throughout this project I use the word "queer", which I realize some people may find offensive. However, this is because I identify as queer. This word has worked its way into my regular vocabulary and I have found that this reclamation of a slur is the best way to succinctly describe my identity.** This is also an example of just how difficult it can be to classify hate speech without much context, but that is what I attempt to do with the models in this project.
 
-
+<br><br>
 The goal of this project was to build a classifier to correctly label tweets as either "Hate Speech", "Offensive Language", or "Neither". The main purpose of my modeling efforts was to make these classifications as accurately as possible. Essentially I want to be able to catch instances of hate speech as often as possible without flagging tweets that merely contain offensive language or nothing offensive too frequently. Such a model could be useful for helping social media platforms like Twitter enforce policies against hate speech and hateful conduct without unnecessarily limiting other forms of expression (even when that expression may be offensive, but isn't technically hate speech).
 
 Twitter's full hateful conduct policy can be found <a href="https://zero731.github.io/model_selection_validation_and_tuning">here</a>. To summarize, the company's goal is to allow for freedom of expression and the "representation of a diverse range of perspectives". Twitter acknowledges that hate speech and otherwise "hateful conduct" is often used on social media as a means to promote violence against, threaten, or otherwise harass and abuse people "on the basis race, ethnicity, national origin, caste, sexual orientation, gender, gender identity, religious affiliation, age, disability, or serious disease." So while hate speech technically represents a certain type of perspective or voice, it is often used online to silence and otherwise harm marginalized and historically underrepresented communities. Twitter specifically prohibits the following under its hateful conduct policy:
@@ -51,11 +51,11 @@ The original dataset consists of a total of 24,783 tweets.
 ## Methods
 I followed the OSEMN data science process to approach this problem. Since there are no missing values in the dataset, the bulk of scrubbing and exploring dealt with how to process the text of each tweet prior to analysis. I found the classes of the original/full dataset, a total of 24,783 tweets, to be extremely imbalanced (77.4% offensive language, 16.8% neither, and 5.8% hate speech). 
 
-<img src="Figures/class_distr_full_df.png" width = 700 halign=center>
+<img src="Figures/class_distr_full_df.png" width = 500 halign=center>
 
 To address this, I chose to undersample the offensive language class. I randomly sampled a subset of 4,407 of the original 19,190 offensive tweets. Combined with all the hate speech and neither tweets, the dataset used for modeling and analysis consisted of 10,000 tweets. The offensive language and neither classes were nearly completely balanced, while hate speech still made up the minority class. 
 
-<img src="Figures/class_distr_undersample_df.png" width = 700 halign=center>
+<img src="Figures/class_distr_undersample_df.png" width = 500 halign=center>
 
 I did also attempt some initial modeling with a completely balanced dataset where both offensive language and neither were undersampled to exactly match the number of hate speech tweets. However these models were substantially less accurate than those built with the dataset of 10,000. This is not necessarily surprising since the completely balanced set consisted of only 4,290 and natural language processing tends to work better with larger bodies of texts.
 
@@ -80,8 +80,8 @@ Model quality and performance were primarily assessed based on overall accuracy 
 ### CountVectorizer vs. TfidfVectorizer
 Across the various types of models that I tested, there was a consistent pattern that the model fit using the TfidfVectorizer might attain a marginally higher overall accuracy (usually about 1-2% higher). However, the same model fit using the CountVectorizer generally had better recall for the hate speech class. This was true for the baseline Random Forest and LinearSVC models, as well as the baseline Multinomial Naive Bayes Classifier. The default MNB with the TfidfVectorizer was actually performed the worst of all models tested, with the lowest overall accuracy of 78% and a recall for hate speech far worse than random guessing (confusion matrices for both default MNB classifiers shown below).
 
-<img src="Figures/base_cvMNB_eval.png" width = 700 halign=center>
-<img src="Figures/base_tfMNB_eval.png" width = 700 halign=center>
+<img src="Figures/base_cvMNB_eval.png" width = 600 halign=center>
+<img src="Figures/base_tfMNB_eval.png" width = 600 halign=center>
 
 Even after hyperparameter tuning, the CountVectorizer tended to work best for maximizing recall on hate speech while barely impacting overall accuracy if at all.
 
@@ -103,7 +103,7 @@ The all around best model was the LinearSVC model using the Count Vectorizer and
  'svc__class_weight': 'balanced'}
 ```
 
-<img src="Figures/bacc_tune_cvSVC_eval.png" width = 700 halign=center>
+<img src="Figures/best_model_non_lemma_eval.png" width = 700 halign=center>
 
 As shown in the figure below, the best model relied heavily on various queer and racial slurs to push it towards a classification of hate speech. The singular and plural version of many of these words show up in the top 10 positive predictors of the hate speech class. Thus, I also trained the same model on a lemmatized version of the same training data to see if this improved model performance (it did, but barely) and to examine what additional words appear as top predictors when singular and plural versions of slurs are treated as the same word.
 Words that were most negatively associated with hate speech (in that their presence in a tweet pushed the model towards either offensive language or neither) mostly seem fairly random and benign ("big", "tonight", "hunter", and "charlie". "Female" may show up because if someone is using that word then they are probably using it rather than words like "bitch(es)" and "ho/e(s)" which were major positive predictors of offensive language tweets. 
@@ -121,7 +121,7 @@ As shown below, predictions of the "neither" class are most influenced by negati
 
 
 
-#### Best Model Trained and Tested on Lemmatized Data
+### Best Model Trained and Tested on Lemmatized Data
 Since many of the top predictors of hate speech and offensive language were the singular and plural versions of slurs, I fit and evaluated a model on the same train-test split used for all other models, but with a lemmatized version of the text. The lemmatized version of the best model performed marginally better with the same overall accuracy of the original model (86%) and 65% recall of hate speech (a slight improvement over the original 63%) with a slight decrease in recall for the neither class (from 95% to 94%). Since this model performs slightly better for the class of interest without unnecessarily flagging many more inoffensive ("neither") tweets as hate speech, I consider this the best modeling approach and focus the rest of the interpretation and the recommendations on this particular model.
 
 <img src="Figures/best_model_lemma_eval.png" width = 700 halign=center>
@@ -141,10 +141,10 @@ As seen before, predictions of the "neither" class are most influenced by negati
 
 
 
-#### Analyzing Hate Speech Misclassifications - False Negatives
+### Analyzing Hate Speech Misclassifications - False Negatives
 The model experienced a similar pattern of difficulty classifying hate speech tweets as the people who voted on the true label of each tweet. All hate speech tweets were classified as such based on majority vote, but sometimes the vote was mixed. 
 
-<img src="Figures/bar_prop_non_hs_votes_hs.png" width = 700 halign=center>
+<img src="Figures/bar_prop_non_hs_votes_hs.png" width = 600 halign=center>
 
 For hate speech tweets that received one or more votes for merely offensive language, the model was also likely to misclassify as offensive langauge. And for hate speech tweets that received one or more votes for neither, the model was also likely to misclassify as neither. 
 
@@ -174,7 +174,7 @@ Below is a wordcloud depicting the most common words for true labeled hate speec
 <img src="Figures/wc_hs_as_off.png" width = 800 halign=center>
 
 
-
+<br><br>
 Of the 29 hate speech tweets incorrectly labeled as neither hate speech nor 'offensive language' by the model, a few do not seem to be clear cut as hate speech. 
  - For example, the following tweet is someone referring to herself and it's not particularly hateful. Voters that classified this tweet as hate speech may have objected to the use of the word "hillbilly", but she's applying the word to herself and there is no ill intent. <br> **looking like a hillbilly and not matching is what I do best goodnight losers http://t.co/caGHBLKAXQ** <br>
  - In another example, the following tweet is not hate speech if "Yankees" is referring to a team. Team rivalries exist and there is no threat or actual ill intent to the team in this tweet. Simply saying that you hate something does not constitute hate speech. <br> **@erinscafe We hate the Yankees though, right? I feel like I'm really good at hating them.** 
@@ -183,24 +183,24 @@ Of the 29 hate speech tweets incorrectly labeled as neither hate speech nor 'off
    - **I already know you trash if being tatted is on the list of things you want in a nigga..**<br><br>
    
 Again, one area where the model was weak in correctly classifying hate speech and misclassifying it as neither hate speech nor offensive language were instances of direct threats, wishing someone harm, or the use of slurs to degrade specific inidividuals such as the following:
- - **3: @BraxCity29 @maria_obregon_g @sophia_freeman1 3/4 of a citizen. I said it for you maria you spic**
- - **13: "@NotoriousBM95: @_WhitePonyJr_ Ariza is a snake and a coward" but at least he isn't a cripple like your hero Roach lmaoo**
- - **15: Of course my #faith for #baseball is off this year. BECAUSE OF #BARRYBONDS you goddamn retards!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #morons**
- - **21: @EvanDMyers @nineinchessoft you have a redneck attitude. The same people that think Benghazzi is real think Fox fake nws is real. Your one**
- - **22: @Flow935 jus wanted to let y&#225;ll know hope the hurricane kills your soca sunday trash #LORDWILLIN** <br>
+ - **@BraxCity29 @maria_obregon_g @sophia_freeman1 3/4 of a citizen. I said it for you maria you spic**
+ - **"@NotoriousBM95: @_WhitePonyJr_ Ariza is a snake and a coward" but at least he isn't a cripple like your hero Roach lmaoo**
+ - **Of course my #faith for #baseball is off this year. BECAUSE OF #BARRYBONDS you goddamn retards!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #morons**
+ - **@EvanDMyers @nineinchessoft you have a redneck attitude. The same people that think Benghazzi is real think Fox fake nws is real. Your one**
+ - **@Flow935 jus wanted to let y&#225;ll know hope the hurricane kills your soca sunday trash #LORDWILLIN** <br>
 
 This issue might be partially addressed by incorporating whether or not a tweet tags someone when such derogatory and/or threatening language is used. However this would not catch cases where no specific individual is tagged or when these statements are made about protected categories.
 
 The model also had issues picking up on less commonly used slurs such as "coon", "spic", "spook", "colored people/folks", "muzzies", "raghead", "monkey", and modified versions of the n-word such as "niggerous" and "niggress". It also did not pick up very well on slang commonly used to refer to white people such as "redneck" and "bird". Below is a wordcloud depicting the most common words for true labeled hate speech tweets which the model mislabeled as neither hate speech nor offensive:
 
 <img src="Figures/wc_hs_as_neither.png" width = 800 halign=center>
- 
+<br><br>
  
 
-#### Analyzing Hate Speech Misclassifications - False Positives
+### Analyzing Hate Speech Misclassifications - False Positives
 For both offensive language and neither tweets that received one or more votes for hate speech, the model was also more likely to misclassify as those as hate speech ("false positive").
 
-<img src="Figures/bar_prop_non_hs_votes_hs.png" width = 1000 halign=center>
+<img src="Figures/bar_prop_hs_votes_non_hs.png" width = 1000 halign=center>
 
 Of the 78 offensive language tweets incorrectly labeled as hate speech by the model, a few seem like they may meet Twitter's definition of prohibited hateful conduct even though the majority of votes did not classify them as such. 
  - For example, the following tweet seems like it is targeting a specific individual and is using a slur associated with a disability to degrade someone. This would seem to be in direct violation of Twitter's hateful conduct policy. <br> **@TakingBackSunda @NYCGreenfield @lsarsour that's not how you resist, you worthless retard. Do you need a dictionary?** <br>
@@ -231,35 +231,35 @@ Below is a wordcloud depicting the most common words for true labeled offensive 
  
 <img src="Figures/wc_off_as_hs.png" width = 800 halign=center>
 
-
+<br>
 
 Of the 23 neither tweets incorrectly labeled as hate speech by the model, several seem like they should have at least been labeled as offensive based on the use of slurs. For example:
- - **4: You all are retarded if you really Kendrick was trying to diss all those rappers, don't think just cuz names were said he was coming at them**
- - **5: Looks like a tool but is useful as a clay hammer #fag @hOPPondis http://t.co/K7wqlAWRwM**
- - **6: I I haven't watched a single episode of #LHHNY however I'm watching the reunion. This coon shit. I mean the levels of ratcheticity** 
- - **18 Being coons &#8220;@FatTravis_6200: At??? @TiFFANY_P0RSCHE: Y'all are amazing."&#8221;**<br>
+ - **You all are retarded if you really Kendrick was trying to diss all those rappers, don't think just cuz names were said he was coming at them**
+ - **Looks like a tool but is useful as a clay hammer #fag @hOPPondis http://t.co/K7wqlAWRwM**
+ - **I I haven't watched a single episode of #LHHNY however I'm watching the reunion. This coon shit. I mean the levels of ratcheticity** 
+ - **Being coons &#8220;@FatTravis_6200: At??? @TiFFANY_P0RSCHE: Y'all are amazing."&#8221;**<br>
  
 Others seem like they could very likely be hate speech depending on context.
  - For example, the following tweet uses a slur to degrade two specific people:
    - **8: The two ringless fags RT @EverybodyHatesX: Barkley &amp; Reggie were talking nonsense the entire game**
  - This one tells someone to log off (presumably an attempt to stop them from expressing themselves online) and uses a slur to degrade them:
-   - **16: Log off nigger RT @PoloKingBC: #relationshipgoals http://t.co/Ge9koImYGj**<br><br>   
+   - **Log off nigger RT @PoloKingBC: #relationshipgoals http://t.co/Ge9koImYGj**<br><br>   
 
 Somewhat interestingly, the model is picking up on tweets that could absolutely be considered racist, but that may not technically meet Twitter's definition of hateful conduct. For example:
- - **0: Aren't these little border jumpers supposed to be in school**
- - **1: RT @Black__Elvis: My favorite episode of Friends is the one where blacks mysteriously vanish and unemployed white people find affordable ho&#8230;**
+ - **Aren't these little border jumpers supposed to be in school**
+ - **RT @Black__Elvis: My favorite episode of Friends is the one where blacks mysteriously vanish and unemployed white people find affordable ho&#8230;**
 
 
 And, as seen previously, the model appears to be picking up on the word "trash" when in the presence of other specific words when the context does not clearly indicate that the text is hate speech. For example:
- - **9: The Saints are pure trash lol smh**
- - **19 Photo: Giving you that trailer park trash. #transformthursday #ladykimora #vegasqueens #vegasshowgirls http://t.co/LjejFufULK**
- - **21: @Blackman38Tide bandana Orian. They called me trailer trash for wearing my lil country getup &#128545;**
+ - **The Saints are pure trash lol smh**
+ - **Photo: Giving you that trailer park trash. #transformthursday #ladykimora #vegasqueens #vegasshowgirls http://t.co/LjejFufULK**
+ - **@Blackman38Tide bandana Orian. They called me trailer trash for wearing my lil country getup &#128545;**
 
 Below is a wordcloud depicting the most common words for true labeled neither tweets which the model mislabeled as hate speech:
 
 <img src="Figures/wc_neither_as_hs.png" width = 800 halign=center>
 
-
+<br>
 
 ## Conclusions and Recommendations
 Overall the best model was extremely accurate when it came to classifying tweets that were neither hate speech nor offensive language. It correctly labeled 94% of the neither tweets from the test data and only flagged 2.8% of that category as hate speech. The model relied heavily on words like "bitch", "pussy", "faggot", "nigger", "fag", "hoe", "nigga(h)", "cunt", and "shit" to make this classification. If any of those words (which are all considered offensive and many of which are commonly used in hate speech) were present in a tweet, the model was extremely unlikely to classify it as neither. 
