@@ -263,8 +263,7 @@ def eval_classifier(clf, X_test, y_test, model_descr='',
 
 
 def fit_grid_clf(model, params, X_train, y_train, X_test, y_test,
-                 model_descr='', score='accuracy',
-                 save=False, fig_name=None):
+                 model_descr='', score='accuracy'):
     
     """Given an sklearn classification model, hyperparameter grid, X and y training data, 
        and a GridSearchCV scoring metric (default is 'accuracy', which is the default metric for 
@@ -279,7 +278,6 @@ def fit_grid_clf(model, params, X_train, y_train, X_test, y_test,
     import datetime as dt
     from tzlocal import get_localzone
     
-    fig_filepath = 'Figures/'
     
     start = dt.datetime.now(tz=get_localzone())
     fmt= "%m/%d/%y - %T %p"
@@ -301,13 +299,7 @@ def fit_grid_clf(model, params, X_train, y_train, X_test, y_test,
     print('Best Parameters:')
     print(grid.best_params_)
     print('\n')
-    eval_classifier(grid.best_estimator_, X_test, y_test, model_descr,
-                    save=save, fig_name=fig_name)
-    
-    if save:
-        plt.savefig(fig_filepath+fig_name, bbox_inches = "tight")
-   
-    plt.show()
+    eval_classifier(grid.best_estimator_, X_test, y_test, model_descr)
     
     return grid
 
