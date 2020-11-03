@@ -22,6 +22,35 @@ def check_unique(df, col, dropna=False):
 
 
 
+def plot_class_distr(df, descr='', save=False, fig_name=None):
+    
+    """Takes in a Pandas DataFrame and optionally a description of the DataFrame for modifying
+       the figure title. Plots the distribution of class labels from the DataFrame. Option to save
+       the resulting image to Figures folder of current notebook.
+    """
+    import matplotlib.pyplot as plt
+    import pandas as pd
+    
+    fig_filepath = 'Figures/'
+    
+    plt.figure(figsize=(7,5))
+    df.groupby('class').tweet.count().plot.bar(ylim=0)
+    plt.xlabel('Class', fontsize=14, fontweight='bold')
+    plt.ylabel('Count', fontsize=14, fontweight='bold')
+    plt.xticks(rotation=45, fontsize=12, fontweight='bold')
+    plt.yticks(fontsize=12)
+    plt.title('Distribution of Tweet Classes {}'.format(descr), fontsize=18, fontweight='bold')
+    
+    if save:
+        plt.savefig(fig_filepath+fig_name, bbox_inches = "tight")
+        
+    plt.show()
+
+
+
+
+
+
 def clean_tweet(tweet):
     """Takes in a tweet in the form of a string and cleans it of tags, urls,
        '&amp;' (which denotes '&'), and 'RT's. Returns the tweet with these removed."""
@@ -145,21 +174,28 @@ def lemma_text(token_list):
 
 
 
-def plot_wordcloud(tokens, title=None):
+def plot_wordcloud(tokens, title=None, save=False, fig_name=None):
     """Takes in a list of tokens and returns a wordcloud visualization of the most common words."""
     
     from wordcloud import WordCloud
     import matplotlib.pyplot as plt
     
+    fig_filepath = 'Figures/'
+    
     wordcloud = WordCloud(collocations=False, colormap='gist_rainbow',
                           min_font_size=7)
     wordcloud.generate(','.join(tokens))
     
-    plt.figure(figsize = (14, 14))
+    plt.figure(figsize = (12, 12))
     if title:
         plt.title(('Most Common Words for ' + title), fontsize=28, fontweight='bold')
     plt.imshow(wordcloud) 
-    plt.axis('off');
+    plt.axis('off')
+    
+    if save:
+        plt.savefig(fig_filepath+fig_name, bbox_inches = "tight")
+    
+    plt.show()
     
     return wordcloud
 
@@ -170,7 +206,7 @@ def plot_wordcloud(tokens, title=None):
 
 def eval_classifier(clf, X_test, y_test, model_descr='',
                     target_labels=['Hate Speech', 'Offensive', 'Neither'],
-                    cmap='Blues', normalize='true'):#, save=False, fig_name=None):
+                    cmap='Blues', normalize='true', save=False, fig_name=None):
     
     """Given an sklearn classification model (already fit to training data), test features, and test labels,
        displays sklearn.metrics classification report and confusion matrix. A description of the model 
@@ -181,8 +217,7 @@ def eval_classifier(clf, X_test, y_test, model_descr='',
     from sklearn.metrics import classification_report, plot_confusion_matrix
     
     
-#     folder = '/Users/maxsteele/FlatIron-DS-CourseMaterials/Mod3/Mod3_Project/recloned/dsc-mod-3-project-v2-1-onl01-dtsc-ft-070620'
-#     fig_filepath = folder+'/Figures/'
+    fig_filepath = 'Figures/'
     
     ## get model predictions
     y_hat_test = clf.predict(X_test)
@@ -204,7 +239,8 @@ def eval_classifier(clf, X_test, y_test, model_descr='',
                           display_labels=target_labels, 
                           normalize=normalize, cmap=cmap, ax=axes)
     
-    axes.set_title('Confusion Matrix', fontdict={'fontsize': 18,'fontweight': 'bold'})
+    axes.set_title('Confusion Matrix:\n{}'.format(model_descr),
+                   fontdict={'fontsize': 18,'fontweight': 'bold'})
     axes.set_xlabel(axes.get_xlabel(),
                        fontdict={'fontsize': 12,'fontweight': 'bold'})
     axes.set_ylabel(axes.get_ylabel(),
@@ -215,8 +251,8 @@ def eval_classifier(clf, X_test, y_test, model_descr='',
                        fontdict={'fontsize': 10,'fontweight': 'bold'})
     
     
-#     if save:
-#         plt.savefig(fig_filepath+fig_name, bbox_inches = "tight")
+    if save:
+        plt.savefig(fig_filepath+fig_name, bbox_inches = "tight")
     
     fig.tight_layout()
     plt.show()
@@ -226,7 +262,9 @@ def eval_classifier(clf, X_test, y_test, model_descr='',
 
 
 
-def fit_grid_clf(model, params, X_train, y_train, X_test, y_test, model_descr='', score='accuracy'):
+def fit_grid_clf(model, params, X_train, y_train, X_test, y_test,
+                 model_descr='', score='accuracy',
+                 save=False, fig_name=None):
     
     """Given an sklearn classification model, hyperparameter grid, X and y training data, 
        and a GridSearchCV scoring metric (default is 'accuracy', which is the default metric for 
@@ -240,6 +278,8 @@ def fit_grid_clf(model, params, X_train, y_train, X_test, y_test, model_descr=''
     from sklearn.model_selection import GridSearchCV
     import datetime as dt
     from tzlocal import get_localzone
+    
+    fig_filepath = 'Figures/'
     
     start = dt.datetime.now(tz=get_localzone())
     fmt= "%m/%d/%y - %T %p"
@@ -261,7 +301,13 @@ def fit_grid_clf(model, params, X_train, y_train, X_test, y_test, model_descr=''
     print('Best Parameters:')
     print(grid.best_params_)
     print('\n')
-    eval_classifier(grid.best_estimator_, X_test, y_test, model_descr)
+    eval_classifier(grid.best_estimator_, X_test, y_test, model_descr,
+                    save=save, fig_name=fig_name)
+    
+    if save:
+        plt.savefig(fig_filepath+fig_name, bbox_inches = "tight")
+   
+    plt.show()
     
     return grid
 
@@ -271,7 +317,7 @@ def fit_grid_clf(model, params, X_train, y_train, X_test, y_test, model_descr=''
 
 
 
-def plot_feat_importance(model, clf_step_name, vec_step_name, model_title=''):#, save=False, fig_name=None):
+def plot_feat_importance(model, clf_step_name, vec_step_name, model_title='', save=False, fig_name=None):
     
     """Takes in an sklearn classifier already fit to training data, the name of the step for that model
        in the modeling pipeline, the vectorizer step name, and optionally a title describing the model. 
@@ -282,26 +328,23 @@ def plot_feat_importance(model, clf_step_name, vec_step_name, model_title=''):#,
     from sklearn.model_selection import GridSearchCV
     import matplotlib.pyplot as plt
     
-#     folder = '/Users/maxsteele/FlatIron-DS-CourseMaterials/Mod3/Mod3_Project/recloned/dsc-mod-3-project-v2-1-onl01-dtsc-ft-070620'
-#     fig_filepath = folder+'/Figures/'
+    fig_filepath = 'Figures/'
     
     feature_importances = (
         model.named_steps[clf_step_name].feature_importances_)
     
     feature_names = (
         model.named_steps[vec_step_name].vocabulary_) 
-
-#     sorted_idx = feature_importances.argsort()
     
     importance = pd.Series(feature_importances, index=feature_names)
-    plt.figure(figsize=(10,8))
+    plt.figure(figsize=(8,6))
     fig = importance.sort_values().tail(20).plot(kind='barh')
     fig.set_title('{} Feature Importances'.format(model_title), fontsize=18, fontweight='bold')
     plt.xticks(fontsize=12, fontweight='bold')
     plt.yticks(fontsize=12)
     
-#     if save:
-#         plt.savefig(fig_filepath+fig_name, bbox_inches = "tight")
+    if save:
+        plt.savefig(fig_filepath+fig_name, bbox_inches = "tight")
 
     plt.show()
     
@@ -313,7 +356,8 @@ def plot_feat_importance(model, clf_step_name, vec_step_name, model_title=''):#,
 
 
 def plot_coefficients(model, clf_step_name, vec_step_name,
-                      class_label, model_title='', top_features=10):
+                      class_label, model_title='', top_features=10,
+                      save=False, fig_name=None):
     
     """Takes in an sklearn classifier already fit to training data, the name of the step for that model
        in the modeling pipeline, the vectorizer step name, a class label, and optionally a title describing the model. 
@@ -325,6 +369,8 @@ def plot_coefficients(model, clf_step_name, vec_step_name,
     import numpy as np
     import matplotlib.pyplot as plt
     
+    
+    fig_filepath = 'Figures/'
     
     ## Get the coefficients for the specified class label
     feature_coefs = (
@@ -365,7 +411,7 @@ def plot_coefficients(model, clf_step_name, vec_step_name,
     
     
     ## Create plot
-    plt.figure(figsize=(10,8))
+    plt.figure(figsize=(8,6))
     
     # Color code positive coefs blue and negative red
     colors = ['blue' if c < 0 else 'red' for c in top_20]
@@ -379,6 +425,10 @@ def plot_coefficients(model, clf_step_name, vec_step_name,
                   fontsize=18, fontweight='bold')
     plt.xticks(fontsize=12, fontweight='bold')
     plt.yticks(fontsize=12)
+    
+    if save:
+        plt.savefig(fig_filepath+fig_name+'_'+title_class.replace(' ', '_'), bbox_inches = "tight")
+    
     plt.show()
     
     return fig
