@@ -121,6 +121,7 @@ As shown below, predictions of the "neither" class are most influenced by negati
 
 
 <br>
+
 ### Best Model Trained and Tested on Lemmatized Data
 Since many of the top predictors of hate speech and offensive language were the singular and plural versions of slurs, I fit and evaluated a model on the same train-test split used for all other models, but with a lemmatized version of the text. The lemmatized version of the best model performed marginally better with the same overall accuracy of the original model (86%) and 65% recall of hate speech (a slight improvement over the original 63%) with a slight decrease in recall for the neither class (from 95% to 94%). Since this model performs slightly better for the class of interest without unnecessarily flagging many more inoffensive ("neither") tweets as hate speech (an increase from 2.5% to 2.8% of neither tweets misclassified as hate speech), I consider this the best modeling approach and focus the rest of the interpretation and the recommendations on this particular model.
 
@@ -140,6 +141,7 @@ As seen before, predictions of the "neither" class are most influenced by negati
 
 
 <br>
+
 ### Analyzing Hate Speech Misclassifications - False Negatives
 The model experienced a similar pattern of difficulty classifying hate speech tweets as the people who voted on the true label of each tweet. All hate speech tweets were classified as such based on majority vote, but sometimes the vote was mixed. 
 
@@ -149,8 +151,10 @@ For hate speech tweets that received one or more votes for merely offensive lang
 
 <br>
 Of the 78 hate speech tweets incorrectly labeled as merely 'offensive language' by the model, several of them do not clearly appear to be hate speech at least to me. 
- - For example, the following tweet certainly contains language most would classify as offensive. However, in this context, it appears to possibly be an overall positive tweet and may be an example of a minority group reclaiming a slur for their own use. <br> **Wish I coulda said more to @EmmaleeeParkerr tonight. Good seeing you fag. &#128540;** <br>
- - In another example, the following tweet is certainly offensive and uses what is now most often considered a slur for referring to those with intellectual disabilities. However, it is not targeting any specific person or inciting violence or harm against a marginalized group. One could possibly make the argument that it promotes harmful stereotypes, but it is difficult to tell. As such, it is not clear cut that this violates Twitter's hateful conduct policy. <br> **DeeDee, Patrick, Ed, Sheen, Timmy's Dad, Beavis &amp; Butthead, Peter Griffin. This is just a list of SOME mentally retarded cartoon characters.** 
+ - For example, the following tweet certainly contains language most would classify as offensive. However, in this context, it appears to possibly be an overall positive tweet and may be an example of a minority group reclaiming a slur for their own use.
+ **Wish I coulda said more to @EmmaleeeParkerr tonight. Good seeing you fag. &#128540;** <br>
+ - In another example, the following tweet is certainly offensive and uses what is now most often considered a slur for referring to those with intellectual disabilities. However, it is not targeting any specific person or inciting violence or harm against a marginalized group. One could possibly make the argument that it promotes harmful stereotypes, but it is difficult to tell. As such, it is not clear cut that this violates Twitter's hateful conduct policy. 
+ **DeeDee, Patrick, Ed, Sheen, Timmy's Dad, Beavis &amp; Butthead, Peter Griffin. This is just a list of SOME mentally retarded cartoon characters.** 
  - Certain versions of the n-word such as "nigga", "nicca", "niggah", and "nigguh" are frequently used by black people in a way that reclaims the original slur. While many people still regard these versions as offensive, especially when appropriated by other racial groups, these words are not strongly associated with clear cut hate speech like the original slur. So depending on context and who is using the word, these words are less likely to indicate hate speech. The following tweets are some examples that voters classified as hate speech but that the model labeled as 'offensive':
    - **' Happppppy Birthdayyyy &#1041191;&#1041196;&#1043215; lol . Niggahs is really 21 in this bitch &#1043358;&#1041219; . http://t.co/YatU7pbsHX**
    - **RT @xDSmooth: The way this niggah just flinched at this movie was #priceless @1BookieG**
@@ -193,7 +197,7 @@ This issue might be partially addressed by incorporating whether or not a tweet 
 The model also had issues picking up on less commonly used slurs such as "coon", "spic", "spook", "colored people/folks", "muzzies", "raghead", "monkey", and modified versions of the n-word such as "niggerous" and "niggress". It also did not pick up very well on slang commonly used to refer to white people such as "redneck" and "bird". Below is a wordcloud depicting the most common words for true labeled hate speech tweets which the model mislabeled as neither hate speech nor offensive:
 
 <img src="Figures/wc_hs_as_neither.png" width = 800 halign=center>
-<br><br>
+<br>
  
 
 ### Analyzing Hate Speech Misclassifications - False Positives
@@ -202,8 +206,9 @@ For both offensive language and neither tweets that received one or more votes f
 <img src="Figures/bar_prop_hs_votes_non_hs.png" width = 1000 halign=center>
 
 <br>
-Of the 78 offensive language tweets incorrectly labeled as hate speech by the model, a few seem like they may meet Twitter's definition of prohibited hateful conduct even though the majority of votes did not classify them as such. 
- - For example, the following tweet seems like it is targeting a specific individual and is using a slur associated with a disability to degrade someone. This would directly violate Twitter's hateful conduct policy. <br> **@TakingBackSunda @NYCGreenfield @lsarsour that's not how you resist, you worthless retard. Do you need a dictionary?** <br>
+Of the 78 offensive language tweets incorrectly labeled as hate speech by the model, a few seem like they may meet Twitter's definition of prohibited hateful conduct even though the majority of votes did not classify them as such. <br>
+ - For example, the following tweet seems like it is targeting a specific individual and is using a slur associated with a disability to degrade someone. This would directly violate Twitter's hateful conduct policy. 
+ **@TakingBackSunda @NYCGreenfield @lsarsour that's not how you resist, you worthless retard. Do you need a dictionary?** <br>
  - In another example, the following tweets seem similar to the above in that they target or mention a specific person and aim at degrading them using a slur referring to sexual orientation. Two of them are even specifically aimed at stopping the mentioned individuals from expressing themselves.
    - **@shoe1945 @NotoriousBM95 @333England shut ur faggot ass up you thirsty pussy** 
    - **This nigga Magic Johnson got a Grade A faggot for a son &#128514;&#128514;.. He had to have done some terrible shit growin up lol..**
