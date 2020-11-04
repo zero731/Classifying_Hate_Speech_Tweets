@@ -205,9 +205,9 @@ For both offensive language and neither tweets that received one or more votes f
 <img src="Figures/bar_prop_hs_votes_non_hs.png" width = 1000 halign=center>
 
 <br>
+
 Of the 78 offensive language tweets incorrectly labeled as hate speech by the model, a few seem like they may meet Twitter's definition of prohibited hateful conduct even though the majority of votes did not classify them as such. <br>
- - For example, the following tweet seems like it is targeting a specific individual and is using a slur associated with a disability to degrade someone. This would directly violate Twitter's hateful conduct policy. 
- **@TakingBackSunda @NYCGreenfield @lsarsour that's not how you resist, you worthless retard. Do you need a dictionary?** <br>
+ - For example, the following tweet seems like it is targeting a specific individual and is using a slur associated with a disability to degrade someone. This would directly violate Twitter's hateful conduct policy. <br> **@TakingBackSunda @NYCGreenfield @lsarsour that's not how you resist, you worthless retard. Do you need a dictionary?** <br>
  - In another example, the following tweets seem similar to the above in that they target or mention a specific person and aim at degrading them using a slur referring to sexual orientation. Two of them are even specifically aimed at stopping the mentioned individuals from expressing themselves.
    - **@shoe1945 @NotoriousBM95 @333England shut ur faggot ass up you thirsty pussy** 
    - **This nigga Magic Johnson got a Grade A faggot for a son &#128514;&#128514;.. He had to have done some terrible shit growin up lol..**
